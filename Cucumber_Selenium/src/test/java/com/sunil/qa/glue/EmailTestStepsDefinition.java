@@ -2,9 +2,12 @@ package com.sunil.qa.glue;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -14,7 +17,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.sunil.qa.EmailTestRunner;
 
-import io.cucumber.java.PendingException;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -24,21 +27,22 @@ public class EmailTestStepsDefinition {
 	@Given("^user is on homepage$")
 	public void user_is_on_homepage() throws Throwable {
 		WebDriver driver = EmailTestRunner.getDriver();
+		driver.manage().window().maximize();
 		// TODO: remove waits
 		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 		driver.get("https:\\yahoo.com");
 	}
 
-	@When("^user navigates to login page$")
-	public void user_navigates_to_login_page() throws Throwable {
+	@When("^I navigates to login page$")
+	public void i_navigates_to_login_page() throws Throwable {
 		WebDriver driver = EmailTestRunner.getDriver();
 		WebElement element = driver.findElement(By.cssSelector("div.text"));
 		assertEquals(element.getAttribute("title"), "Sign In");
 		element.click();
 	}
 
-	@When("^user enters \"([^\"]*)\" and \"([^\"]*)\"$")
-	public void user_enters_username_and_password(String username, String password) throws Throwable {
+	@When("^I enters \"([^\"]*)\" and \"([^\"]*)\"$")
+	public void i_enters_username_and_password(String username, String password) throws Throwable {
 		WebDriver driver = EmailTestRunner.getDriver();
 		driver.findElement(By.id("login-username")).sendKeys(username);
 		driver.findElement(By.id("login-signin")).click();
@@ -62,7 +66,7 @@ public class EmailTestStepsDefinition {
 	public void i_logged_in_to_the_yahooemail() {
 		WebDriver driver = EmailTestRunner.getDriver();
 		driver.findElement(By.cssSelector("a#ymail")).click();
-		driver.findElement(By.cssSelector("a#ybar-logo")).click();
+		// driver.findElement(By.cssSelector("a#ybar-logo")).click();
 	}
 
 	@When("I search the title of an email")
@@ -97,10 +101,10 @@ public class EmailTestStepsDefinition {
 		driver.findElement(By.cssSelector("a[data-test-id='compose-button']")).click();
 	}
 
-	@Given("I entered the recepient email id")
+	@Given("^I entered the recepient email id$")
 	public void i_entered_the_recepient_email_id() {
 		WebDriver driver = EmailTestRunner.getDriver();
-		driver.findElement(By.cssSelector("input#message-to-field")).sendKeys("dahiya.himanshu@gmail.com");
+		driver.findElement(By.cssSelector("input#message-to-field")).sendKeys("sunil_rawat85@yahoo.com");
 	}
 
 	@When("I put the subject of email as student information")
@@ -122,8 +126,58 @@ public class EmailTestStepsDefinition {
 
 	@Then("I have sent email to recepient")
 	public void i_have_sent_email_to_recepient() {
-//		WebDriver driver = EmailTestRunner.getDriver();
-		throw new PendingException();
+		WebDriver driver = EmailTestRunner.getDriver();
+		driver.findElement(By.cssSelector("button[title='Send this email'")).click();
+		System.out.println("Email sent successfully");
+	}
+
+//Amazon Registration
+
+	@Given("^I am on amazon homepage$")
+	public void i_am_on_amazon_homepage() {
+		WebDriver driver = EmailTestRunner.getDriver();
+		driver.navigate().to("https:\\www.amazon.co.in");
+		try {
+			driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+		} catch (org.openqa.selenium.UnhandledAlertException e) {
+			Alert alert = driver.switchTo().alert();
+			String alertText = alert.getText().trim();
+			System.out.println("Alert data: " + alertText);
+			alert.dismiss();
+		}
+		// Actions a = new Actions(driver);
+		// a.moveToElement(driver.findElement(By.cssSelector("a[id='nav-link-accountList']"))).build().perform();
+		driver.findElement(By.cssSelector("a[id='nav-link-accountList']")).click();
+		driver.findElement(By.id("createAccountSubmit")).click();
+	}
+
+	@When("^I entered all details$")
+	public void i_entered_all_details(DataTable testData) {
+		WebDriver driver = EmailTestRunner.getDriver();
+		List<Map<String, String>> dataMap = testData.asMaps();
+		String user_name = dataMap.get(0).get("username");
+		driver.findElement(By.cssSelector("input#ap_customer_name")).sendKeys(user_name);
+		String text = driver.findElement(By.cssSelector("label[for='ap_email']")).getText();
+		System.out.println(text);
+		if (text.equals("Email (optional)")) {
+			driver.findElement(By.id("ap_phone_number")).sendKeys(dataMap.get(0).get("m_number"));
+			driver.findElement(By.id("ap_email")).sendKeys(dataMap.get(0).get("email_id"));
+			driver.findElement(By.id("ap_password")).sendKeys(dataMap.get(0).get("password"));
+			driver.findElement(By.cssSelector("input#continue")).click();
+		} else {
+			driver.findElement(By.id("ap_email")).sendKeys(dataMap.get(0).get("email_id"));
+			driver.findElement(By.id("ap_password")).sendKeys(dataMap.get(0).get("password"));
+			driver.findElement(By.id("ap_password_check")).sendKeys(dataMap.get(0).get("password_check"));
+			driver.findElement(By.cssSelector("input#continue")).click();
+		}
+	}
+
+	@Then("I received a message that user already existed")
+	public void i_received_a_message_that_user_already_existed() {
+		WebDriver driver = EmailTestRunner.getDriver();
+		driver.findElement(By.cssSelector("div[class='a-box-inner a-alert-container']"));
+		System.out.println(driver.findElement(By.cssSelector("h4[class='a-alert-heading']")).getText());
+		driver.close();
 	}
 
 }

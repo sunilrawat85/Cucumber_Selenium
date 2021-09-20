@@ -8,8 +8,8 @@ Feature: Email Login
     #TODO: read username and password from file in resource directory
     #Make your test readable and consistent
     Given user is on homepage
-    When user navigates to login page
-    And user enters "sunilrawattest@yahoo.com" and "Ultr@Mild"
+    When I navigates to login page
+    And I enters "sunilrawattest@yahoo.com" and "Ultr@Mild"
     Then success message is displayed
 
   Scenario: Replying to an email
