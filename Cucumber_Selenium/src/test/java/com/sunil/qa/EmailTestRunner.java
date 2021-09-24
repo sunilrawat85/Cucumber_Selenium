@@ -9,7 +9,7 @@ import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = "src/test/java/features/", glue = { "com.sunil.qa.glue" }, plugin = {
+@CucumberOptions(features = "src/test/java/features/", glue = { "com.sunil.qa.glue" },tags= "@amazon", plugin = {
 		"pretty" }, stepNotifications = true)
 public class EmailTestRunner {
 

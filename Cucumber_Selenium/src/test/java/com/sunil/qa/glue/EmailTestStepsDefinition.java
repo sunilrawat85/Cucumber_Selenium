@@ -2,8 +2,11 @@ package com.sunil.qa.glue;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -137,6 +140,7 @@ public class EmailTestStepsDefinition {
 	public void i_am_on_amazon_homepage() {
 		WebDriver driver = EmailTestRunner.getDriver();
 		driver.navigate().to("https:\\www.amazon.co.in");
+		// For alert handling
 		try {
 			driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 		} catch (org.openqa.selenium.UnhandledAlertException e) {
@@ -145,14 +149,12 @@ public class EmailTestStepsDefinition {
 			System.out.println("Alert data: " + alertText);
 			alert.dismiss();
 		}
-		// Actions a = new Actions(driver);
-		// a.moveToElement(driver.findElement(By.cssSelector("a[id='nav-link-accountList']"))).build().perform();
 		driver.findElement(By.cssSelector("a[id='nav-link-accountList']")).click();
 		driver.findElement(By.id("createAccountSubmit")).click();
 	}
 
 	@When("^I entered all details$")
-	public void i_entered_all_details(DataTable testData) {
+	public void i_entered_all_details(DataTable testData) throws FileNotFoundException {
 		WebDriver driver = EmailTestRunner.getDriver();
 		List<Map<String, String>> dataMap = testData.asMaps();
 		String user_name = dataMap.get(0).get("username");
@@ -162,7 +164,7 @@ public class EmailTestStepsDefinition {
 		if (text.equals("Email (optional)")) {
 			driver.findElement(By.id("ap_phone_number")).sendKeys(dataMap.get(0).get("m_number"));
 			driver.findElement(By.id("ap_email")).sendKeys(dataMap.get(0).get("email_id"));
-			driver.findElement(By.id("ap_password")).sendKeys(dataMap.get(0).get("password"));
+			driver.findElement(By.id("ap_password")).sendKeys(FileUtil.getPasswordFromFile(user_name));
 			driver.findElement(By.cssSelector("input#continue")).click();
 		} else {
 			driver.findElement(By.id("ap_email")).sendKeys(dataMap.get(0).get("email_id"));
